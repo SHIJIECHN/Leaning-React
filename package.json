@@ -1,0 +1,23 @@
+{
+  "name": "demo",
+  "version": "1.0.0",
+  "description": "React学习案例",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SHIJIECHN/Leaning-React.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SHIJIECHN/Leaning-React/issues"
+  },
+  "homepage": "https://github.com/SHIJIECHN/Leaning-React#readme",
+  "dependencies": {
+    "vite": "^3.1.8"
+  }
+}
