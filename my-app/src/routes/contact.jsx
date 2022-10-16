@@ -1,15 +1,21 @@
-import { Form, useLoaderData } from "react-router-dom";
-import { getContacts } from '../contacts.js'
+import { Form, useLoaderData, useFetcher } from "react-router-dom";
+import { getContacts, updateContact } from '../contacts.js'
 /**
  * 加载器
  * @param {*} params 路由参数
  * @returns 
  */
 export async function loader({ params }) {
-  console.log(params.contactId)
   const contacts = await getContacts(params.contactId);
-  console.log(contacts)
+  console.log('contact loader: ' + JSON.stringify(contacts))
   return { contacts };
+}
+
+export async function action({ request, params }) {
+  let formData = await request.formData();
+  return updateContact(params.contactId, {
+    favorite: formData.get("favorite") === "true",
+  })
 }
 
 export default function Contact() {
@@ -24,6 +30,7 @@ export default function Contact() {
 
   // 获取loader返回的数据
   const contact = useLoaderData();
+  console.log(contact)
 
   return (
     <div id="contact">
@@ -57,6 +64,7 @@ export default function Contact() {
         )}
 
         <div>
+          {/* 会直接将/edit字符串拼接到url上并发生跳转 */}
           <Form action="edit">
             <button type="submit">Edit</button>
           </Form>
@@ -80,9 +88,11 @@ export default function Contact() {
 }
 
 function Favorite({ contact }) {
+  const fetcher = useFetcher();
   let favorite = contact.favorite;
+
   return (
-    <Form method="post">
+    <fetcher.Form method="post">
       <button
         name="favorite"
         value={favorite ? 'false' : 'true'}
@@ -94,6 +104,6 @@ function Favorite({ contact }) {
       >
         {favorite ? "★" : "☆"}
       </button>
-    </Form>
+    </fetcher.Form>
   )
 }

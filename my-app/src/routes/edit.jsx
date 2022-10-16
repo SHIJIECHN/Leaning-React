@@ -1,7 +1,27 @@
-import { Form, useLoaderData } from "react-router-dom"
+import {
+  Form,
+  useLoaderData,
+  redirect,
+  useNavigate
+} from "react-router-dom"
+import { updateContact } from "../contacts.js";
+
+export async function action({ request, params }) {
+  // 创建FormData实例对象
+  const formData = await request.formData();
+  // {first: 'Judy', last: 'Smith', twitter: '@jack', avatar: '', notes: '11'}
+  const updates = Object.fromEntries(formData);
+  // 更新当前 contactId 的数据
+  await updateContact(params.contactId, updates);
+  // 重定向到contacts/:contactId页面
+  return redirect(`/contacts/${params.contactId}`)
+
+}
 
 export default function EditContact() {
   const contact = useLoaderData();
+  const navigate = useNavigate();
+
   return (
     <Form method="post" id="contact-form">
       <p>
@@ -49,7 +69,12 @@ export default function EditContact() {
       </label>
       <p>
         <button type="submit">Save</button>
-        <button type="button">Cancel</button>
+        <button
+          type="button"
+          onClick={() => {
+            navigate(-1)
+          }}
+        >Cancel</button>
       </p>
     </Form>
   )
