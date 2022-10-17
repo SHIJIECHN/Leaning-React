@@ -1,11 +1,20 @@
-// import './index.less'
+import './index.less'
+import { ThemeContext } from '../../context.js'
+
 
 class NavItem extends React.Component {
     render() {
         const { index, item } = this.props;
+
         return (
-            <div className={index ? 'item' : 'item active'}>{item}</div>
+            <ThemeContext.Consumer>
+                {
+                    (theme) => <div className={index ? 'item' : `item active-${theme}`}>{item}</div>
+
+                }
+            </ThemeContext.Consumer>
         )
+
     }
 }
 
