@@ -1,7 +1,7 @@
 class TEacherList extends React.Component {
   render() {
     return (
-      <table>
+      <table border="1">
         <thead>
           <tr>
             <th>ID</th>
@@ -20,7 +20,7 @@ class TEacherList extends React.Component {
                 <td>{item.subject}</td>
                 <td>{item.like}</td>
                 <td>
-                  <button onClick={() => this.props.likeTeacher(item.id)}></button>
+                  <button onClick={() => this.props.likeTeacher(item.id)}>喜欢</button>
                 </td>
               </tr>
             ))
