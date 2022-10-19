@@ -4,6 +4,7 @@ import { ThemeContext } from '../../context.js'
 
 class NavItem extends React.Component {
     render() {
+        // 接收父组件传递的index item
         const { index, item } = this.props;
 
         return (

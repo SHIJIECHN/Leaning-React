@@ -6,9 +6,8 @@ import './index.less'
  */
 class ButtonNav extends React.Component {
     render() {
-
+        console.log(this.props); // {data: Array(4)}
         return (
-
             <div className="botton-nav">
                 {
                     this.props.data.map((item, index) => {

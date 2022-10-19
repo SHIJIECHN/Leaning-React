@@ -11,6 +11,10 @@ my-app/node_modules
 my-app/dist
 my-app/*.log
 
+react-router-test-app/node_modules
+react-router-test-app/dist
+react-router-test-app/*.log
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

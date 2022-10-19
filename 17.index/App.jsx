@@ -29,7 +29,7 @@ class App extends React.Component {
 
     render() {
         return (
-            // 通过Provider提供数据
+            // 通过Provider提供数据 value给子组件
             <ThemeContext.Provider value={this.state.theme}>
                 {/* 页面组件 */}
                 <Main themeChange={this.themeChange.bind(this)} />
