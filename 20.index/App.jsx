@@ -10,65 +10,85 @@
  * }
  */
 
-import { fetchListData } from './model'
-import StudentList from './components/StudentList.jsx'
-import TeacherList from './components/TeacherList.jsx'
-import listHoc from './components/ListHoc.jsx'
+// import { fetchListData } from './model'
+// import StudentList from './components/StudentList.jsx'
+// import TeacherList from './components/TeacherList.jsx'
+// import listHoc from './components/ListHoc.jsx'
 
-const StudentListHoc = listHoc(StudentList, fetchListData);
-const TeacherListHoc = listHoc(TeacherList, fetchListData);
+// const StudentListHoc = listHoc(StudentList, fetchListData);
+// const TeacherListHoc = listHoc(TeacherList, fetchListData);
+
+// class App extends React.Component {
+//   // state = {
+//   //   studentList: [],
+//   //   teacherList: []
+//   // }
+
+//   // async componentDidMount() {
+//   //   const studentData = await fetchListData('student');
+//   //   const teacherData = await fetchListData('teacher');
+
+//   //   this.setState({
+//   //     studentList: studentData.data,
+//   //     teacherList: teacherData.data
+//   //   })
+//   // }
+
+//   // removeStudent(id) {
+//   //   this.setState({
+//   //     studentList: this.state.studentList.filter(item => item.id !== id)
+//   //   })
+//   // }
+
+//   // likeTeacher(id) {
+//   //   this.setState({
+//   //     teacherList: this.state.teacherList.map(item => {
+//   //       if (item.id === id) {
+//   //         item.like += 1
+//   //       }
+
+//   //       return item;
+//   //     })
+//   //   })
+//   // }
+
+//   render() {
+//     return (
+//       <div className="app">
+//         {/* <StudentList
+//           data={this.state.studentList}
+//           // this指向App组件
+//           removeStudent={this.removeStudent.bind(this)}
+//         >
+//         </StudentList>
+//         <TeacherList
+//           data={this.state.teacherList}
+//           likeTeacher={this.likeTeacher.bind(this)}
+//         ></TeacherList> */}
+
+//         <StudentListHoc field="student" />
+//         <TeacherListHoc field="teacher" />
+//       </div>
+//     )
+//   }
+// }
+
+
+import MyInput from './components/MyInput.jsx'
+import InputHoc from './components/InputHoc.jsx'
+
+const MyInputHoc = InputHoc(MyInput);
 
 class App extends React.Component {
-  // state = {
-  //   studentList: [],
-  //   teacherList: []
-  // }
-
-  // async componentDidMount() {
-  //   const studentData = await fetchListData('student');
-  //   const teacherData = await fetchListData('teacher');
-
-  //   this.setState({
-  //     studentList: studentData.data,
-  //     teacherList: teacherData.data
-  //   })
-  // }
-
-  // removeStudent(id) {
-  //   this.setState({
-  //     studentList: this.state.studentList.filter(item => item.id !== id)
-  //   })
-  // }
-
-  // likeTeacher(id) {
-  //   this.setState({
-  //     teacherList: this.state.teacherList.map(item => {
-  //       if (item.id === id) {
-  //         item.like += 1
-  //       }
-
-  //       return item;
-  //     })
-  //   })
-  // }
-
+  state = {
+    a: 1,
+    b: 2,
+    c: 3
+  }
   render() {
     return (
-      <div className="app">
-        {/* <StudentList
-          data={this.state.studentList}
-          // this指向App组件
-          removeStudent={this.removeStudent.bind(this)}
-        >
-        </StudentList>
-        <TeacherList
-          data={this.state.teacherList}
-          likeTeacher={this.likeTeacher.bind(this)}
-        ></TeacherList> */}
-
-        <StudentListHoc field="student" />
-        <TeacherListHoc field="teacher" />
-      </div>
+      // 如何排除MyInputHoc传入的不需要的属性
+      <MyInputHoc {...this.state} />
     )
   }
 }
