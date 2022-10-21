@@ -1,5 +1,5 @@
 function InputHoc(WrapperComponent) {
-  // 为什么不见以修改WrapperComponent组件？
+  // 为什么不建议修改WrapperComponent组件？
 
   // 重写参数参数组件componentDidUpdate方法
   // 这就会导致WrapperComponent里面的componentDidUpdate无法执行
