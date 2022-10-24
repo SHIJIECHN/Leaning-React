@@ -49,7 +49,7 @@
  */
 
 // class MyButton extends React.Component {
-//     render() {
+//     render() {》
 //         return (
 //             <button>Click</button>
 //         )
@@ -485,53 +485,132 @@ class ListItems extends React.Component {
  * 为解决条件渲染的问题
  */
 
-class App extends React.Component {
-    state = {
-        show: true,
-        data: []
-    }
+// class App extends React.Component {
+//     state = {
+//         show: true,
+//         data: []
+//     }
 
+//     render() {
+//         return (
+//             <div>
+//                 {/* 都不会渲染 */}
+//                 <div>{true}</div>
+//                 <div>{false}</div>
+//                 <div>{undefined}</div>
+//                 <div>{null}</div>
+
+//                 {/* 渲染 */}
+//                 <div>{String(null)}</div>
+//                 <div>
+//                     {this.state.show ? 'ok' : '不ok'}
+//                 </div>
+//                 <div>
+//                     {
+//                         this.state.show && 'ok'
+//                     }
+//                 </div>
+//                 <div>
+//                     {
+//                         this.state.data.length ? '有数据' : '无数据'
+//                     }
+//                 </div>
+//                 <div>
+//                     {
+//                         // 显示0。因为JSX中0是会渲染的，这个条件
+//                         // this.state.data.length && '有数据'
+
+//                         this.state.data.lenght > 0 && '有数据'
+//                     }
+//                 </div>
+//             </div>
+
+//         )
+//     }
+// }
+
+/**
+ * 函数作为子元素 props.children是函数
+ * 
+ * JSX的props.children根props本身是有一直2的特性
+ * props.children就可以传递任何类型的子元素
+ * 
+ * 适合视图渲染前的一些逻辑
+ */
+
+//定义一个Repeat组件专门来循环子项并打印出来且每次的index都不同
+// class Repeat extends React.Component {
+//     render() {
+//         const jsxArr = [];
+//         for (var i = 0; i < this.props.num; i++) {
+// this.props.children 
+// -> 父组件App里传入的值是一个函数(index) 
+// => <p>...</p>
+//并将传入的函数执行并传入参数i的结果依次存入数组
+//             jsxArr.push(this.props.children(i));
+//         }
+//         return jsxArr;
+//         /**
+//          * <p>This is item 1.</p>
+//          * <p>This is item 2.</p>
+//          */
+//     }
+// }
+
+// class App extends React.Component {
+//     render() {
+//         return (
+//             <div>
+//                 <Repeat num={10}>
+//                     {
+//                         (index) => <p key={index}>This is item {index + 1}.</p>
+//                     }
+//                 </Repeat>
+//             </div>
+//         )
+//     }
+// }
+
+/**
+ * 表格 getStudents getTeachers
+ */
+import Http from './Http'
+class App extends React.Component {
     render() {
         return (
-            <div>
-                {/* 都不会渲染 */}
-                <div>{true}</div>
-                <div>{false}</div>
-                <div>{undefined}</div>
-                <div>{null}</div>
-
-                {/* 渲染 */}
-                <div>{String(null)}</div>
-                <div>
-                    {this.state.show ? 'ok' : '不ok'}
-                </div>
-                <div>
-                    {
-                        this.state.show && 'ok'
-                    }
-                </div>
-                <div>
-                    {
-                        this.state.data.length ? '有数据' : '无数据'
-                    }
-                </div>
-                <div>
-                    {
-                        // 显示0。因为JSX中0是会渲染的，这个条件
-                        // this.state.data.length && '有数据'
-
-                        this.state.data.lenght > 0 && '有数据'
-                    }
-                </div>
-            </div>
-
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>姓名</th>
+                        <th>年级</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <Http.Get
+                        url="http://localhost:8888/getStudents"
+                        loading={
+                            <tr colSpan="3">正在加载中...</tr>
+                        }
+                    >
+                        {
+                            (data) => {
+                                return data.map((item, index) => (
+                                    <tr key={item.id}>
+                                        <td>{item.id}</td>
+                                        <td>{item.name}</td>
+                                        <td>{item.grade}</td>
+                                    </tr>
+                                ))
+                            }
+                        }
+                    </Http.Get>
+                </tbody>
+            </table>
         )
     }
 }
 
-/**
- * 函数作为子元素
- */
 ReactDOM.render(
     <App />,
     document.getElementById('app')
