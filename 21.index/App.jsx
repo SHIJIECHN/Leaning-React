@@ -449,30 +449,30 @@
  * React 16.2及 ref转发
  */
 
-class MyInput extends React.Component {
-    render() {
-        return (
-            <input type="text" ref={this.props.inputRef} />
-        )
-    }
-}
+// class MyInput extends React.Component {
+//     render() {
+//         return (
+//             <input type="text" ref={this.props.inputRef} />
+//         )
+//     }
+// }
 
-class App extends React.Component {
-    constructor(props) {
-        super(props);
-        this.inputRef = React.createRef();
-    }
-    componentDidMount() {
-        console.log(this.inputRef);
-    }
-    render() {
-        return (
-            <MyInput inputRef={this.inputRef} />
-        )
-    }
-}
+// class App extends React.Component {
+//     constructor(props) {
+//         super(props);
+//         this.inputRef = React.createRef();
+//     }
+//     componentDidMount() {
+//         console.log(this.inputRef);
+//     }
+//     render() {
+//         return (
+//             <MyInput inputRef={this.inputRef} />
+//         )
+//     }
+// }
 
-// 2. 回调一：在本组件中设置回调函数
+// // 2. 回调一：在本组件中设置回调函数
 // class MyInput extends React.Component {
 //     constructor(props) {
 //         super(props);
@@ -490,9 +490,6 @@ class App extends React.Component {
 
 //     componentDidMount() {
 //         console.log(this.refs.inputRef);
-//         /**
-//          * 
-//          */
 //     }
 //     render() {
 //         return (
@@ -532,6 +529,37 @@ class App extends React.Component {
  * }
  * 不能组合，只能有一个ref
  */
+
+
+
+// 官网
+// const MyInput = React.forwardRef((props, ref) => {
+//     return (
+//         <input type="text" ref={ref} className="my-input" />
+//     )
+// })
+
+class MyInput extends React.Component {
+    render() {
+        return (
+            <input type="text" className="my-input" ref={this.props.InputRef} />
+        )
+    }
+}
+
+class App extends React.Component {
+
+    componentDidMount() {
+        console.log(this.oInput);
+    }
+    render() {
+        return (
+            <div>
+                <MyInput InputRef={el => this.oInput = el} />
+            </div>
+        )
+    }
+}
 
 ReactDOM.render(
     <App />,

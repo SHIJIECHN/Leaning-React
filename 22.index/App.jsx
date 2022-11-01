@@ -409,40 +409,40 @@
  * JSX作为JSX子元素
  */
 
-class MyList extends React.Component {
-    render() {
-        return (
-            <div className={this.props.listClassName}>
-                <h1>{this.props.title}</h1>
-                <ul className="my-list">{this.props.children}</ul>
-            </div>
-        )
-    }
-}
+// class MyList extends React.Component {
+//     render() {
+//         return (
+//             <div className={this.props.listClassName}>
+//                 <h1>{this.props.title}</h1>
+//                 <ul className="my-list">{this.props.children}</ul>
+//             </div>
+//         )
+//     }
+// }
 
-class ListItem extends React.Component {
-    render() {
-        return (
-            <li>{this.props.children}</li>
-        )
-    }
-}
+// class ListItem extends React.Component {
+//     render() {
+//         return (
+//             <li>{this.props.children}</li>
+//         )
+//     }
+// }
 
-class ListItems extends React.Component {
-    render() {
-        // 返回数据
-        // return [
-        //     <li key="1">This is content 1.</li>,
-        //     <li key="2">This is content 2.</li>,
-        //     <li key="3">This is content 3.</li>
-        // ]
+// class ListItems extends React.Component {
+//     render() {
+//         // 返回数据
+//         // return [
+//         //     <li key="1">This is content 1.</li>,
+//         //     <li key="2">This is content 2.</li>,
+//         //     <li key="3">This is content 3.</li>
+//         // ]
 
-        // 如果想返回一组JSX的话，可以直接返回数组
-        return this.props.listData.map((item, index) => (
-            <li key={index}>{item}</li>
-        ))
-    }
-}
+//         // 如果想返回一组JSX的话，可以直接返回数组
+//         return this.props.listData.map((item, index) => (
+//             <li key={index}>{item}</li>
+//         ))
+//     }
+// }
 
 
 // class App extends React.Component {
@@ -574,41 +574,59 @@ class ListItems extends React.Component {
 /**
  * 表格 getStudents getTeachers
  */
-import Http from './Http'
-class App extends React.Component {
-    render() {
-        return (
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>姓名</th>
-                        <th>年级</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <Http.Get
-                        url="http://localhost:8888/getStudents"
-                        loading={
-                            <tr colSpan="3">正在加载中...</tr>
-                        }
-                    >
-                        {
-                            (data) => {
-                                return data.map((item, index) => (
-                                    <tr key={item.id}>
-                                        <td>{item.id}</td>
-                                        <td>{item.name}</td>
-                                        <td>{item.grade}</td>
-                                    </tr>
-                                ))
-                            }
-                        }
-                    </Http.Get>
-                </tbody>
-            </table>
-        )
+// import Http from './Http'
+// class App extends React.Component {
+//     render() {
+//         return (
+//             <table>
+//                 <thead>
+//                     <tr>
+//                         <th>ID</th>
+//                         <th>姓名</th>
+//                         <th>年级</th>
+//                     </tr>
+//                 </thead>
+//                 <tbody>
+//                     <Http.Get
+//                         url="http://localhost:8888/getStudents"
+//                         loading={
+//                             <tr colSpan="3">正在加载中...</tr>
+//                         }
+//                     >
+//                         {
+//                             (data) => {
+//                                 return data.map((item, index) => (
+//                                     <tr key={item.id}>
+//                                         <td>{item.id}</td>
+//                                         <td>{item.name}</td>
+//                                         <td>{item.grade}</td>
+//                                     </tr>
+//                                 ))
+//                             }
+//                         }
+//                     </Http.Get>
+//                 </tbody>
+//             </table>
+//         )
+//     }
+// }
+
+function Repeat(props) {
+    let items = [];
+    for (let i = 0; i < props.numTimes; i++) {
+        items.push(props.children(i))
     }
+    return <div>{items}</div>
+}
+
+function App() {
+    return (
+        <Repeat numTimes={10}>{
+            (index) => (
+                <div key={index}>This is item {index} in the list.</div>
+            )
+        }</Repeat>
+    )
 }
 
 ReactDOM.render(
