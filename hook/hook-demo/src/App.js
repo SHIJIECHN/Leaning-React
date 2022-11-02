@@ -1,133 +1,101 @@
-import { useState, memo, useCallback, useMemo } from "react";
+import React, { useContext, useEffect, useRef } from 'react'
+import { forwardRef } from 'react';
+import { useImperativeHandle } from 'react';
+// const themes = {
+//   light: {
+//     foreground: '#000000',
+//     background: '#222222'
+//   },
+//   dark: {
+//     foreground: '#ffffff',
+//     background: '#222222'
+//   }
+// }
 
-// const Foo = memo(props => {
-//   console.log('Foo render');
-//   return (
-//     <div>{props.count}</div>
-//   )
-
-// })
+// const ThemeContext = React.createContext(themes.light);
 
 // function App() {
-//   const [count, setCount] = useState(0);
 //   return (
-//     <div>
-//       <h1>count: {count}</h1>
-//       {/* count变换每次render都会重新执行 */}
-//       <button onClick={() => {
-//         setCount(count + 1)
-//       }}>Add</button>
-//        <Foo count={1}/>
-//     </div >
+//     // Provider 提供值
+//     <ThemeContext.Provider value={themes.dark}>
+//       <Toolbar />
+//     </ThemeContext.Provider>
 //   )
 // }
 
-/**
- * 以前的写法，传入的属性不变，希望子组件不渲染
- * 类组件使用PureComponent。函数组件使用memo包装.
- * memo是函数组件优化组件的一种方式。
- */
-
-// const Foo = memo(props => {
-//   console.log('Foo render');
+// function Toolbar(props) {
 //   return (
 //     <div>
-//       <ul>{props.render()}</ul>
+//       <ThemedButton />
 //     </div>
 //   )
-// })
+// }
 
-// function App() {
-//   const [range, setRange] = useState({ min: 0, max: 10000 });
-//   const [count, setCount] = useState(0);
-
-//   const render = useCallback(() => {
-//     const list = [];
-//     console.log('App render')
-//     for (let i = 0; i < range.max; i++) {
-//       list.push(<li key={i}>{i}</li>)
-//     }
-//     return list;
-//   }, [range])
-
+// function ThemedButton() {
+//   // 获取值
+//   const theme = useContext(ThemeContext);
 //   return (
-//     <div>
-//       <h1>count: {count}</h1>
-//       {/* count变换每次render都会重新执行 */}
-//       <button onClick={() => {
-//         setCount(count + 1)
-//       }}>Add</button>
-//       <Foo render={render}></Foo>
-//     </div >
+//     <button style={{
+//       background: theme.background,
+//       color: theme.foreground
+//     }}>
+//       I am styled by theme context
+//     </button>
 //   )
 // }
 
-/**
- * 当count发生变化时，App函数都会重新执行，当前render函数就是新的引用。
- * 
- * 要求：render函数指向同一引用
- * 使用useCallback
- * 
- * usecallback 和 useMemo有什么关系？
- * useCallback固定的是一个函数，useMemo固定的是一个值。
- * 
- * 根据range是否发生变化，
- * 
- * useMemo与useCallback
- * 
- * useMemo与memo的关系：
- * memo在于组件的优化，如果是函数组件，不希望每次都刷新。
- * useMemo用来固定值，函数组件中不希望子组件渲染，就传给子组件一个固定的值。
- * 类组件就传一个固定值就可以了。
- * 
- * useCallback在函数组件中使用，在类组件中通过实例绑定箭头函数。
- */
+// function TextInputWithFocusButton() {
+//   const inputEl = useRef(null);
+//   const onButtonClick = () => {
+//     inputEl.current.focus();
+//   }
 
-// 使用useMemo
-const Foo = memo(props => {
-  console.log('Foo render');
-  return (
-    <div>
-      {/* 改为模板，而不是函数 */}
-      <ul>{props.render}</ul>
-    </div>
-  )
+//   return (
+//     <>
+//       <input type="text" ref={inputEl} />
+//       <button onClick={onButtonClick}>Focus the input</button>
+//     </>
+//   )
+// }
+
+const FancyInput = forwardRef((props, ref) => {
+  const inputRef = useRef();
+
+  const inputMethod = () => {
+    console.log('This is FancyInput method.')
+  }
+
+  // 通过参数ref把子组件的方法暴露出去
+  useImperativeHandle(ref, () => {
+    // 返回方法集合
+    return {
+      inputMethod
+    }
+  })
+  // 抛出子组件的引用
+  return <input ref={inputRef} />
 })
 
+
+
 function App() {
-  const [range, setRange] = useState({ min: 0, max: 10000 });
-  const [count, setCount] = useState(0);
-
-  // 模板
-  const render = useMemo(() => {
-    const list = [];
-    console.log('App render')
-    for (let i = 0; i < range.max; i++) {
-      list.push(<li key={i}>{i}</li>)
-    }
-    return list;
-  }, [range])
-
+  const myRef = useRef(null);
+  useEffect(() => {
+    console.log(myRef); // current是一个对象而不是子组件真实DOM 
+    /**
+      current:
+        inputMethod: () => { console.log('This is FancyInput method.'); }
+          length: 0
+          name: "inputMethod"
+          arguments: (...)
+          caller: (...)
+     */
+  })
   return (
     <div>
-      <h1>count: {count}</h1>
-      {/* count变换每次render都会重新执行 */}
-      {/* <button onClick={() => {
-        setCount(count + 1)
-      }}>Add</button> */}
-
-      {/* 修改range */}
-      <button onClick={() => {
-        setRange({
-          ...range,
-          max: range.max + 1
-        })
-      }}>Add</button>
-      <Foo render={render}></Foo>
-    </div >
+      <FancyInput ref={myRef} />
+    </div>
   )
 }
 
 export default App;
-
-
