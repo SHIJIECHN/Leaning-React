@@ -1,3 +1,4 @@
+import FastClick from './fastclick';
 document.documentElement.style.fontSize = document.documentElement.clientWidth / 3.75 + 'px';
 
 window.addEventListener('load', function () {
