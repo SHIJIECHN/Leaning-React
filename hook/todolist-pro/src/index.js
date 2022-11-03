@@ -3,16 +3,19 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+
+// 引入默认移动端样式
 import './assets/css/resets.css'
 import './assets/css/border.css'
 import './assets/css/ui.css'
+
 import './assets/js/common.js'
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+  // <React.StrictMode>
+  <App />
+  // </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

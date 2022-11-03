@@ -1,0 +1,40 @@
+.todo-item {
+  display: flex;
+  height: .59rem;
+  line-height: .59rem;
+  border-bottom: 1px solid #ddd;
+
+  .checkbox {
+    text-align: center;
+    width: 10%;
+    // height: .59rem;
+    // line-height: .59rem;
+    align-items: center;
+
+  }
+
+  .content {
+    width: 55%;
+    // height: .59rem;
+    // line-height: .59rem;
+    text-indent: 1em;
+    font-size: .2rem;
+  }
+
+  .btn-group {
+    display: flex;
+    width: 35%;
+    margin: 0.1rem 0;
+    box-sizing: border-box;
+
+    .btn {
+      text-align: center;
+      align-items: center;
+      height: .4rem;
+      line-height: .4rem;
+      font-size: .1rem;
+      margin-right: .03rem;
+    }
+  }
+
+}
