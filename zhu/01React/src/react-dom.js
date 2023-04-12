@@ -16,22 +16,59 @@ function render(vdom, container) {
 function createDOM(vdom) {
   let { type, props } = vdom;
   let dom;// 1. 先获取到真实DOM元素
-  if (type === REACT_TEXT) { // 如果是一个文本元素，就常见一个文本节点
+  if (type === REACT_TEXT) { // 如果是一个文本元素，就创建一个文本节点
     dom = document.createTextNode(props.content);
+  } else if (typeof type === 'function') { // 说明是一个React函数组件的React元素
+    if (type.isReactComponent) { // 类组件
+      return mountClassComponent(vdom);
+    } else { // 函数组件
+      return mountFunctionComponent(vdom); // 挂载函数组件  
+    }
   } else {
     dom = document.createElement(type); // 原生DOM类型
   }
   // 2. 更新元素属性
   if (props) {
     updateProps(dom, {}, props);
-    // 它是个对象
+    // 它是个对象并且只有一个儿子
     if (typeof props.children == 'object' && props.children.type) {
-
-    } else if (Array.isArray(props.children)) { // 数组
+      render(props.children, dom);
+    } else if (Array.isArray(props.children)) { // 数组。多个儿子
+      reconcileChildren(props.children, dom)
+    } else { // null 或 undefined，不处理
 
     }
   }
 
+  // 让虚拟DOM的dom属性指向它的真实dom
+  // vdom.dom = dom;
+  return dom;
+
+}
+
+/** 类组件挂载 */
+function mountClassComponent(vdom) {
+  const { type, props } = vdom;
+  const classInstance = new type(props); // 实例化组件
+  let renderVdom = classInstance.render(); // 调用render方法，返回虚拟DOM
+  return createDOM(renderVdom);
+}
+
+/**
+ * 也要返回真实DOM。执行函数组件得到返回的React元素，在把React元素转成真实DOM返回
+ * @param {*} props 
+ */
+function mountFunctionComponent(vdom) {
+  let { type, props } = vdom;
+  let renderVdom = type(props); // type就是组件。这里是执行函数组件，返回虚拟DOM，我们使用的是React，createElement
+  return createDOM(renderVdom);
+}
+
+function reconcileChildren(childrenVdom, parentDOM) {
+  for (let i = 0; i < childrenVdom.length; i++) {
+    let chilVdom = childrenVdom[i];
+    render(chilVdom, parentDOM);
+  }
 }
 
 /**
@@ -53,3 +90,9 @@ function updateProps(dom, oldProps, newProps) {
     }
   }
 }
+
+const ReactDOM = {
+  render
+}
+
+export default ReactDOM;
