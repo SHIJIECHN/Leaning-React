@@ -43,7 +43,6 @@ function createDOM(vdom) {
   // 让虚拟DOM的dom属性指向它的真实dom
   // vdom.dom = dom;
   return dom;
-
 }
 
 /** 类组件挂载 */
@@ -85,6 +84,8 @@ function updateProps(dom, oldProps, newProps) {
       for (let attr in styleObj) {
         dom.style[attr] = styleObj[attr];
       }
+    } else if (key.startsWith('on')) { // onClick
+      dom[key.toLocaleLowerCase()] = newProps[key]; // dom.onclick=handleClick
     } else {
       dom[key] = newProps[key];
     }
