@@ -1,5 +1,4 @@
 import { REACT_TEXT } from "./constant.js";
-import { addEvent } from './event.js'
 /**
  * 把虚拟DOM转成真实DOM，插入到容器中
  * @param {*} vdom 虚拟DOM
@@ -15,7 +14,7 @@ function render(vdom, container) {
  * @param {*} vdom 虚拟DOM
  */
 function createDOM(vdom) {
-  let { type, props, ref } = vdom;// 解构出类型type和属性props
+  let { type, props } = vdom;
   let dom;// 1. 先获取到真实DOM元素
   if (type === REACT_TEXT) { // 如果是一个文本元素，就创建一个文本节点
     dom = document.createTextNode(props.content);
@@ -40,20 +39,19 @@ function createDOM(vdom) {
 
     }
   }
+
   // 让虚拟DOM的dom属性指向它的真实dom
-  vdom.dom = dom; // 这个在DOM-Diff的时候会使用
-  if (ref) ref.current = dom; // 让ref.current属性指向真实DOM实例
+  vdom.dom = dom;
   return dom;
 }
 
 /** 类组件挂载 */
 function mountClassComponent(vdom) {
-  const { type, props, ref } = vdom; // 获取类组件和属性
+  const { type, props } = vdom;
   const classInstance = new type(props); // 实例化组件
   let renderVdom = classInstance.render(); // 调用render方法，返回虚拟DOM
   //TODO 5.类组件更新
   classInstance.oldRenderVdom = vdom.oldRenderVdom = renderVdom;//将计算出来的虚拟DOM renderVdom挂载到类的实例上
-  if (ref) ref.current = classInstance; // 让ref的current指向类组件实例
   return createDOM(renderVdom);
 }
 
@@ -90,8 +88,7 @@ function updateProps(dom, oldProps, newProps) {
         dom.style[attr] = styleObj[attr];
       }
     } else if (key.startsWith('on')) { // onClick
-      // dom[key.toLocaleLowerCase()] = newProps[key]; // dom.onclick=handleClick
-      addEvent(dom, key.toLocaleLowerCase(), newProps[key])
+      dom[key.toLocaleLowerCase()] = newProps[key]; // dom.onclick=handleClick
     } else {
       dom[key] = newProps[key];
     }
