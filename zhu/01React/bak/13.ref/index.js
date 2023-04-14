@@ -8,11 +8,7 @@ function TextInput(props, ref) {
 }
 
 const ForwardedTextInput = React.forwardRef(TextInput)
-console.log(ForwardedTextInput);
-/**
-$$typeof: Symbol(react.forward_ref)
-render: ƒ TextInput(props, ref)
- */
+
 // 点击按钮，让input获得焦点
 class Form extends React.Component {
   constructor(props) {
@@ -24,10 +20,10 @@ class Form extends React.Component {
   }
   render() {
     return (
-      <div>
+      <>
         <ForwardedTextInput ref={this.textInputRef} />
         <button onClick={this.getFormFocus}>获得焦点</button>
-      </div>
+      </>
     )
   }
 }

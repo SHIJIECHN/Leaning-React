@@ -1,6 +1,5 @@
 import { wrapToVdom } from './utils.js'
 import { Component } from './Component';
-import { REACT_FOREARD_REF_TYPE } from './constant'
 /**
  * 创建元素。运行的时候，内部会自动调用这个方法，不用我们手动调用
  * @param {*} type 类型
@@ -15,7 +14,7 @@ function createElement(type, config, children) {
     delete config.__source;
     delete config.__self;
     ref = config.ref;
-    delete config.ref;
+    // delete config.ref;
     key = config.key;
     delete config.key;
   }
@@ -41,18 +40,12 @@ function createRef() {
 }
 
 /** 函数组价使用 */
-// function forwardRef(FunctionComponent) {
-//   // 返回一个类组件
-//   return class extends Component {
-//     render() {
-//       return FunctionComponent(this.props, this.props.ref); // 执行函数组件
-//     }
-//   }
-// }
-function forwardRef(render) {
-  return {
-    $$typeof: REACT_FOREARD_REF_TYPE,
-    render // 原来的函数组件
+function forwardRef(FunctionComponent) {
+  // 返回一个类组件
+  return class extends Component {
+    render() {
+      return FunctionComponent(this.props, this.props.ref); // 执行函数组件
+    }
   }
 }
 

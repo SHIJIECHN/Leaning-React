@@ -1,4 +1,4 @@
-import { REACT_TEXT, REACT_FOREARD_REF_TYPE } from "./constant.js";
+import { REACT_TEXT } from "./constant.js";
 import { addEvent } from './event.js'
 /**
  * 把虚拟DOM转成真实DOM，插入到容器中
@@ -17,9 +17,7 @@ function render(vdom, container) {
 function createDOM(vdom) {
   let { type, props, ref } = vdom;// 解构出类型type和属性props
   let dom;// 1. 先获取到真实DOM元素
-  if (type && type.$$typeof === REACT_FOREARD_REF_TYPE) { // 支持React.forwardRef
-    return mountForwardComponent(vdom)
-  } else if (type === REACT_TEXT) { // 如果是一个文本元素，就创建一个文本节点
+  if (type === REACT_TEXT) { // 如果是一个文本元素，就创建一个文本节点
     dom = document.createTextNode(props.content);
   } else if (typeof type === 'function') { // 说明是一个React函数组件的React元素
     if (type.isReactComponent) { // 类组件
@@ -46,14 +44,6 @@ function createDOM(vdom) {
   vdom.dom = dom; // 这个在DOM-Diff的时候会使用
   if (ref) ref.current = dom; // 让ref.current属性指向真实DOM实例
   return dom;
-}
-
-/** React.forwardRef产生的组件进行挂载 */
-function mountForwardComponent(vdom) {
-  let { type, props, ref } = vdom;
-  let renderVdom = type.render(props, ref); // 调用render方法
-  vdom.oldRenderVdom = renderVdom;
-  return createDOM(renderVdom)
 }
 
 /** 类组件挂载 */
