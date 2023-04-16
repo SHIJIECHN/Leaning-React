@@ -1,90 +1,14 @@
-import { REACT_TEXT, REACT_FOREARD_REF_TYPE,REACT_CONTEXT,REACT_PROVIDER, REACT_MEMO } from "./constant.js";
+import { REACT_TEXT, REACT_FOREARD_REF_TYPE } from "./constant.js";
 import { addEvent } from './event.js'
-
-let scheduleUpdate = null; // 调度更新的方法
-let hookStates = []; // 保存状态的数组，存放的是每个组件的状态
-let hookIndex = 0; // 当前的hook索引
 /**
  * 把虚拟DOM转成真实DOM，插入到容器中
  * @param {*} vdom 虚拟DOM
  * @param {*} container 容器
  */
 function render(vdom, container) {
-  // 将组件的挂载和更新分开
-  mount(vdom,container); // 1. 挂载
-  scheduleUpdate = () => { // 2. 更新
-    hookIndex = 0; // 每次更新都要把索引重置为0
-    compareTwoVdom(container,vdom,vdom); // 比较新旧根元素虚拟DOM。深度对比
-  }
-}
-
-/** 挂载 */
-function mount(vdom,container){
   let newDOM = createDOM(vdom);
   container.appendChild(newDOM);
   if (newDOM.componentDidMount) newDOM.componentDidMount();
-}
-
-/**
- * useState的实现: 保存状态，返回状态和更新状态的方法。更新就调用scheduleUpdate
- * @param {*} initialState 
- * @returns 
- */
-export function useState(initialState){
-  hookStates[hookIndex] = hookStates[hookIndex] || initialState; // 如果没有值，就用初始值
-  let currentIndex = hookIndex; // 保存当前的索引
-  function setState(newState){ // 更新状态的方法
-    hookStates[currentIndex] = newState; // 覆盖掉老的状态
-    scheduleUpdate(); // 调度更新
-  }
-  return [hookStates[hookIndex++],setState]; // 返回状态和更新状态的方法
-}
-
-export function useMemo(factory, deps){
-  if(hookStates[hookIndex]){ // 说明不是第一次，而是更新
-    let [lastMemo,lastDeps] = hookStates[hookIndex]; // 取出上一次的值和依赖
-    let everySame = deps.every((item,index)=>item === lastDeps[index]); // 判断依赖是否相同
-    if(everySame){ // 如果依赖相同，就返回上一次的值
-      hookIndex++;
-      return lastMemo;
-    }else{ // 如果依赖不相同，就重新执行函数，得到新的值
-      let newMemo = factory();
-      hookStates[hookIndex++] = [newMemo,deps]; // 保存新的值和依赖
-      return newMemo;
-    }
-  }else{ // 第一次执行
-    let newMemo = factory(); // 执行函数，得到函数返回值
-    hookStates[hookIndex++] = [newMemo,deps]; // 保存新的值和依赖
-    return newMemo;
-  }
-}
-
-export function useCallback(callback, deps){
-  if(hookStates[hookIndex]){ // 说明不是第一次，而是更新
-    let [lastCallback,lastDeps] = hookStates[hookIndex]; // 取出上一次的值和依赖
-    let everySame = deps.every((item,index)=>item === lastDeps[index]); // 判断依赖是否相同
-    if(everySame){ // 如果依赖相同，就返回上一次的值
-      hookIndex++;
-      return lastCallback;
-    }else{ // 如果依赖不相同，就重新执行函数，得到新的值
-      hookStates[hookIndex++] = [callback,deps]; // 保存新的值和依赖
-      return callback;
-    }
-  }else{ // 第一次执行
-    hookStates[hookIndex++] = [callback,deps]; // 保存新的值和依赖
-    return callback;
-  }
-}
-
-
-export function useReducer(reducer,initialState){
-  hookStates[hookIndex] = hookStates[hookIndex] || initialState; // 如果没有值，就用初始值
-  let currentIndex = hookIndex; // 保存当前的索引
-  function dispatch(action){ // 更新状态的方法
-    hookStates[currentIndex] = reducer(hookStates[currentIndex],action); // 覆盖掉老的状态
-    scheduleUpdate(); // 调度更新
-  }
-  return [hookStates[hookIndex++],dispatch]; // 返回状态和更新状态的方法
 }
 
 /**
@@ -94,13 +18,7 @@ export function useReducer(reducer,initialState){
 function createDOM(vdom) {
   let { type, props, ref } = vdom;// 解构出类型type和属性props
   let dom;// 1. 先获取到真实DOM元素
-  if(type && type.$$typeof === REACT_MEMO){
-    return mountMemoComponent(vdom);
-  }else if(type && type.$$typeof === REACT_PROVIDER){
-    return mountProviderComponent(vdom)
-  }else if(type && type.$$typeof === REACT_CONTEXT){
-    return mountContextComponent(vdom);
-  }else if (type && type.$$typeof === REACT_FOREARD_REF_TYPE) { // 支持React.forwardRef
+  if (type && type.$$typeof === REACT_FOREARD_REF_TYPE) { // 支持React.forwardRef
     return mountForwardComponent(vdom)
   } else if (type === REACT_TEXT) { // 如果是一个文本元素，就创建一个文本节点
     dom = document.createTextNode(props.content);
@@ -110,10 +28,8 @@ function createDOM(vdom) {
     } else { // 函数组件
       return mountFunctionComponent(vdom); // 挂载函数组件  
     }
-  } else if (typeof type === 'string') {
-    dom = document.createElement(type); // 原生DOM类型
   } else {
-    throw new Error(`无法处理的元素类型`, type);
+    dom = document.createElement(type); // 原生DOM类型
   }
   // 2. 更新元素属性
   if (props) {
@@ -133,49 +49,6 @@ function createDOM(vdom) {
   return dom;
 }
 
-/**
- * memo组件挂载
- * @param {*} vdom 
- * @returns 
- */
-function mountMemoComponent(vdom){
-  let {type,props} = vdom;
-  let newRenderVdom = type.type(props); // type={$$typeof:Symbol(react.memo),compare:null,type:xxx}
-  vdom.prevProps = props; // 保存旧的props，在更新的时候会用到
-  vdom.oldRenderVdom = newRenderVdom;
-  return createDOM(newRenderVdom);
-}
-
-/**
- * Consumer组件挂载
- * @param {*} vdom 
- * @returns 
- */
-function mountContextComponent(vdom){
-  let {type,props} = vdom; // type={$$typeof:Symbol(react.context),_currentValue:xxx}, props={children:xxx}
-  let context = type._context; // 获取context
-  let value = context._currentValue; // 获取context中的_currentValue值
-  let renderVdom = props.children(value); // 获取子元素. props.children是一个函数，传入value值，返回子元素
-  vdom.oldRenderVdom = renderVdom;
-  return createDOM(renderVdom);
-}
-
-/**
- * Provider组件挂载
- * @param {*} vdom 
- * @returns 
- */
-function mountProviderComponent(vdom){
-  // type={$$typeof:Symbol(react.provider),_context:context}, props={value:xxx, children:xxx}
-  let {type,props} = vdom; 
-  // 在渲染Provider组件的时候，拿到属性中的value，赋给context._currentValue。
-  // 后面使用的时候，就可以从context._currentValue中拿到值
-  type._context._currentValue = props.value;
-  let renderVdom = props.children; // 获取子元素
-  vdom.oldRenderVdom = renderVdom;
-  return createDOM(renderVdom);
-}
-
 /** React.forwardRef产生的组件进行挂载 */
 function mountForwardComponent(vdom) {
   let { type, props, ref } = vdom;
@@ -190,9 +63,6 @@ function mountClassComponent(vdom) {
   let defaultProps = type.defaultProps;// 类默认属性
   let componentProps = { ...defaultProps, ...props }; //props是传过来的属性，两个合并
   const classInstance = new type(componentProps); // 实例化组件
-  if (type.contextType) { // 在组件进行挂载时，如果类组件有contextType属性，就把contextType._currentValue赋值给类组件的context属性
-    classInstance.context = type.contextType._currentValue; // type.contextType = context
-  }
   vdom.classInstance = classInstance; // 将classInstance挂载到vdom上
   if (classInstance.componentWillMount) classInstance.componentWillMount()
   let renderVdom = classInstance.render(); // 调用render方法，返回虚拟DOM
@@ -202,7 +72,7 @@ function mountClassComponent(vdom) {
   let dom = createDOM(renderVdom);
   if (classInstance.componentDidMount) {
     // 给真实dom新增一个属性componentDidMount。暂时将didMount方法暂存到真实dom上
-    dom.componentDidMount = classInstance.componentDidMount.bind(classInstance);
+    dom.componentDidMount = classInstance.componentDidMount.bind(this);
   }
   return dom;
 }
@@ -243,9 +113,7 @@ function updateProps(dom, oldProps, newProps) {
       // dom[key.toLocaleLowerCase()] = newProps[key]; // dom.onclick=handleClick
       addEvent(dom, key.toLocaleLowerCase(), newProps[key])
     } else {
-      if(newProps[key]){ // 如果属性有值
-        dom[key] = newProps[key];
-      }
+      dom[key] = newProps[key];
     }
   }
 }
@@ -256,11 +124,11 @@ function updateProps(dom, oldProps, newProps) {
 export function findDOM(vdom) {
   let { type } = vdom;
   let dom;
-  if (typeof type === 'string' || type === REACT_TEXT) { // 原生组件
-    dom = vdom.dom;
-  } else { // 类组件、函数组件、forwardRef组件、provider组件、consumer组件
+  if (typeof type === 'function') { // 虚拟DOM组件的类型的话
     // 找他的oldRenderVdom的真实DOM元素
     dom = findDOM(vdom.oldRenderVdom);
+  } else {
+    dom = vdom.dom;
   }
   return dom;
 }
@@ -303,14 +171,8 @@ export function compareTwoVdom(parentDOM, oldVdom, newVdom, nextDOM) {
 
 /** 更新属性 */
 function updateElement(oldVdom, newVdom) {
-  // type类型：文本组件、原生组件、类组件、函数组件、forwardRef组件、provider组件、consumer组件、memo组件
-  if(oldVdom.type&&oldVdom.type.$$typeof === REACT_MEMO){
-    updateMemoComponent(oldVdom, newVdom)
-  }else if(oldVdom.type&&oldVdom.type.$$typeof === REACT_PROVIDER){
-    updateProviderComponent(oldVdom, newVdom)
-  }else if(oldVdom.type&&oldVdom.type.$$typeof === REACT_CONTEXT){
-    updateConsumerComponent(oldVdom, newVdom)
-  }else if (oldVdom.type === REACT_TEXT && newVdom.type === REACT_TEXT) { // 文本节点更新
+  // type类型：类组件、函数组件、文本组件
+  if (oldVdom.type === REACT_TEXT && newVdom.type === REACT_TEXT) { // 文本节点更新
     let currentDOM = newVdom.dom = findDOM(oldVdom); // 老的文本节点的真实DOM
     if (oldVdom.props.content !== newVdom.props.content) { // 新的文本内容和老的不相等时执行
       currentDOM.textContent = newVdom.props.content; // 将新的文本内容赋值给老的节点文本内容
@@ -331,52 +193,13 @@ function updateElement(oldVdom, newVdom) {
   }
 }
 
-/**
- * memo组件更新
- * @param {*} oldVdom 
- * @param {*} newVdom 
- */
-function updateMemoComponent(oldVdom, newVdom){
-  let {type, prevProps} = oldVdom; 
-  if(type.compare(prevProps, newVdom.props)){ // 比较新旧属性是否相等，如果相等就不更新
-    newVdom.oldRenderVdom = oldVdom.oldRenderVdom;
-    newVdom.prevProps = newVdom.props; 
-  }else{ // 如果不相等，就更新
-    let parentDOM = findDOM(oldVdom).parentNode;// 老的真实DOM的父节点
-    let { type, props } = newVdom; // type是Memo组件，props是Memo组件的属性
-    let renderVdom = type.type(props); // type.type是Memo组件的返回值，是一个函数
-    compareTwoVdom(parentDOM, oldVdom.oldRenderVdom, renderVdom);
-    newVdom.prevProps = props; // 将新的属性赋值给newVdom.prevProps
-    newVdom.oldRenderVdom = renderVdom;
-  }
-}
-
-/** Consumer组件更新 */
-function updateConsumerComponent(oldVdom, newVdom){
-  let parentDOM = findDOM(oldVdom).parentNode;// 老的真实DOM的父节点
-  let { type, props } = newVdom; // type是Consumer组件，props是Consumer组件的属性
-  let renderVdom = props.children(type._context._currentValue); // props.children是Consumer组件的子节点，是一个函数
-  compareTwoVdom(parentDOM, oldVdom.oldRenderVdom, renderVdom);
-  newVdom.oldRenderVdom = renderVdom;
-}
-
-/** Provider组件更新 */
-function updateProviderComponent(oldVdom, newVdom){
-  let parentDOM = findDOM(oldVdom).parentNode;// 老的真实DOM的父节点
-  let { type, props } = newVdom; // type是Provider组件，props是Provider组件的属性
-  type._context._currentValue = props.value; // 将Provider组件的value属性赋值给context的_currentValue属性
-  let renderVdom = props.children; // props.children是Provider组件的子节点
-  compareTwoVdom(parentDOM, oldVdom.oldRenderVdom, renderVdom);
-  newVdom.oldRenderVdom = renderVdom;
-}
-
-/** 函数组件更新 */
+/** 函数组件 */
 function updateFunctionComponent(oldVdom, newVdom) {
   let parentDOM = findDOM(oldVdom).parentNode;// 老的真实DOM的父节点
   let { type, props } = newVdom;
   let renderVdom = type(props);
-  compareTwoVdom(parentDOM, oldVdom.oldRenderVdom, renderVdom);
   newVdom.oldRenderVdom = renderVdom;
+  compareTwoVdom(parentDOM, oldVdom.oldRenderVdom, renderVdom);
 }
 
 /** 类组件更新 */

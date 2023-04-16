@@ -1,5 +1,4 @@
 import { findDOM, compareTwoVdom } from "./react-dom.js";
-import { shallowEqual } from "./utils.js";
 export const updateQueue = {
   isBatchingUpdate: false, //通过此变量来控制是否批量更新
   updaters: [],
@@ -72,13 +71,7 @@ function shouldUpdate(classInstance, nextProps, nextState) {
   }
   // 其实不管要不要更新属性和状态都要更新为最新的状态
   if (nextProps) classInstance.props = nextProps;
-
-  if (classInstance.constructor.getDerivedStateFromProps) {
-    let nextState = classInstance.constructor.getDerivedStateFromProps(nextProps, classInstance.state);
-    if (nextState) classInstance.state = nextState; // 返回null不修改状态
-  } else {
-    classInstance.state = nextState;// 真正修改实例的状态
-  }
+  classInstance.state = nextState;// 真正修改实例的状态
   if (willUpdate) { // 组件需要更新
     classInstance.forceUpdate();// 然后调用类组件实例的forceUpdate进行更新
   }
@@ -107,27 +100,11 @@ export class Component {
   forceUpdate() {
     let oldRenderVdom = this.oldRenderVdom; // 拿到老的虚拟DOM
     let oldDOM = findDOM(oldRenderVdom);// 根据老的虚拟DOM，查到老的真实DOM
-    if (this.constructor.contextType) { // 更新：修改context，也需要更新子组件所有的context
-      this.context = this.constructor.contextType._currentValue;// 获取最新的context
-    }
     let newRenderVdom = this.render(); // 在shouldUpdate的时候，state状态已经是最新的，可以已经计算出新的虚拟DOM
-    let extraArgs;
-    if (this.getSnapshotBeforeUpdate) {
-      extraArgs = this.getSnapshotBeforeUpdate();
-    }
     compareTwoVdom(oldDOM.parentNode, oldRenderVdom, newRenderVdom);// 比较差异，把更新同步到真实的DOM上
     this.oldRenderVdom = newRenderVdom;// 把更新给oldRenderVdom
     if (this.componentDidUpdate) {
-      this.componentDidUpdate(this.props, this.state, extraArgs)
+      this.componentDidUpdate(this.props, this.state)
     }
   }
 }
-
-export class PureComponent extends Component {
-  // PureComponent重写shouldComponentUpdate方法，只比较状态和属性
-  shouldComponentUpdate(nextProps, nextState) {
-    // 比较老属性和新属性，比较老状态和新状态，如果有任何一个不相等，就返回true，否则返回false
-    return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
-  }
-}
-

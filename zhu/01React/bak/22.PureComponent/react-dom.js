@@ -1,90 +1,15 @@
 import { REACT_TEXT, REACT_FOREARD_REF_TYPE,REACT_CONTEXT,REACT_PROVIDER, REACT_MEMO } from "./constant.js";
 import { addEvent } from './event.js'
 
-let scheduleUpdate = null; // 调度更新的方法
-let hookStates = []; // 保存状态的数组，存放的是每个组件的状态
-let hookIndex = 0; // 当前的hook索引
 /**
  * 把虚拟DOM转成真实DOM，插入到容器中
  * @param {*} vdom 虚拟DOM
  * @param {*} container 容器
  */
 function render(vdom, container) {
-  // 将组件的挂载和更新分开
-  mount(vdom,container); // 1. 挂载
-  scheduleUpdate = () => { // 2. 更新
-    hookIndex = 0; // 每次更新都要把索引重置为0
-    compareTwoVdom(container,vdom,vdom); // 比较新旧根元素虚拟DOM。深度对比
-  }
-}
-
-/** 挂载 */
-function mount(vdom,container){
   let newDOM = createDOM(vdom);
   container.appendChild(newDOM);
   if (newDOM.componentDidMount) newDOM.componentDidMount();
-}
-
-/**
- * useState的实现: 保存状态，返回状态和更新状态的方法。更新就调用scheduleUpdate
- * @param {*} initialState 
- * @returns 
- */
-export function useState(initialState){
-  hookStates[hookIndex] = hookStates[hookIndex] || initialState; // 如果没有值，就用初始值
-  let currentIndex = hookIndex; // 保存当前的索引
-  function setState(newState){ // 更新状态的方法
-    hookStates[currentIndex] = newState; // 覆盖掉老的状态
-    scheduleUpdate(); // 调度更新
-  }
-  return [hookStates[hookIndex++],setState]; // 返回状态和更新状态的方法
-}
-
-export function useMemo(factory, deps){
-  if(hookStates[hookIndex]){ // 说明不是第一次，而是更新
-    let [lastMemo,lastDeps] = hookStates[hookIndex]; // 取出上一次的值和依赖
-    let everySame = deps.every((item,index)=>item === lastDeps[index]); // 判断依赖是否相同
-    if(everySame){ // 如果依赖相同，就返回上一次的值
-      hookIndex++;
-      return lastMemo;
-    }else{ // 如果依赖不相同，就重新执行函数，得到新的值
-      let newMemo = factory();
-      hookStates[hookIndex++] = [newMemo,deps]; // 保存新的值和依赖
-      return newMemo;
-    }
-  }else{ // 第一次执行
-    let newMemo = factory(); // 执行函数，得到函数返回值
-    hookStates[hookIndex++] = [newMemo,deps]; // 保存新的值和依赖
-    return newMemo;
-  }
-}
-
-export function useCallback(callback, deps){
-  if(hookStates[hookIndex]){ // 说明不是第一次，而是更新
-    let [lastCallback,lastDeps] = hookStates[hookIndex]; // 取出上一次的值和依赖
-    let everySame = deps.every((item,index)=>item === lastDeps[index]); // 判断依赖是否相同
-    if(everySame){ // 如果依赖相同，就返回上一次的值
-      hookIndex++;
-      return lastCallback;
-    }else{ // 如果依赖不相同，就重新执行函数，得到新的值
-      hookStates[hookIndex++] = [callback,deps]; // 保存新的值和依赖
-      return callback;
-    }
-  }else{ // 第一次执行
-    hookStates[hookIndex++] = [callback,deps]; // 保存新的值和依赖
-    return callback;
-  }
-}
-
-
-export function useReducer(reducer,initialState){
-  hookStates[hookIndex] = hookStates[hookIndex] || initialState; // 如果没有值，就用初始值
-  let currentIndex = hookIndex; // 保存当前的索引
-  function dispatch(action){ // 更新状态的方法
-    hookStates[currentIndex] = reducer(hookStates[currentIndex],action); // 覆盖掉老的状态
-    scheduleUpdate(); // 调度更新
-  }
-  return [hookStates[hookIndex++],dispatch]; // 返回状态和更新状态的方法
 }
 
 /**

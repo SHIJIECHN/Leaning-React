@@ -4,4 +4,3 @@ export const REACT_TEXT = Symbol('REACT_TEXT'); // 用来标识这是一个文�
 export const REACT_FOREARD_REF_TYPE = Symbol('react.forward_ref'); // 用来标识这是一个转发ref的类型
 export const REACT_PROVIDER = Symbol('react.provider'); // 用来标识这是一个Provider类型
 export const REACT_CONTEXT = Symbol('react.context'); // 用来标识这是一个Consumer类型
-export const REACT_MEMO = Symbol('react.memo'); // 用来标识这是一个memo类型

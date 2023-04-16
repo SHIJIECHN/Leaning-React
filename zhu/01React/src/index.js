@@ -1,36 +1,24 @@
-import React from './react';
-import ReactDOM from './react-dom';
 
-function TextInput(props, ref) {
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+function Counter(){
+  const [number, setNumber] = React.useState(0);
+  // React.useEffect接收一个函数，这个函数会在组件挂载或者更新后执行
+  React.useEffect(()=>{
+    console.log('开启一个新的定时器');
+    const timer = setInterval(()=>{
+      console.log('执行定时器');
+      setNumber(number=>number+1);
+      }, 1000)
+    return()=>{
+      console.log('清空定时器', number);
+      clearInterval(timer);
+    }
+  },[number])
   return (
-    <input ref={ref} />
+    <p>{number}</p>
   )
 }
 
-const ForwardedTextInput = React.forwardRef(TextInput)
-console.log(ForwardedTextInput);
-/**
-$$typeof: Symbol(react.forward_ref)
-render: ƒ TextInput(props, ref)
- */
-// 点击按钮，让input获得焦点
-class Form extends React.Component {
-  constructor(props) {
-    super(props);
-    this.textInputRef = React.createRef();
-  }
-  getFormFocus = () => {
-    this.textInputRef.current.focus();
-  }
-  render() {
-    return (
-      <div>
-        <ForwardedTextInput ref={this.textInputRef} />
-        <button onClick={this.getFormFocus}>获得焦点</button>
-      </div>
-    )
-  }
-}
-
-
-ReactDOM.render(<Form />, document.getElementById('root'));
+ReactDOM.render(<Counter />, document.getElementById('root'));

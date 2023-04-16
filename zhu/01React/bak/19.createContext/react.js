@@ -1,7 +1,6 @@
-import { shallowEqual, wrapToVdom } from './utils.js'
-import { Component,PureComponent } from './Component';
-import { REACT_FOREARD_REF_TYPE, REACT_PROVIDER, REACT_CONTEXT, REACT_MEMO } from './constant'
-import {useState, useMemo, useCallback, useReducer} from './react-dom.js'
+import { wrapToVdom } from './utils.js'
+import { Component } from './Component';
+import { REACT_FOREARD_REF_TYPE, REACT_PROVIDER, REACT_CONTEXT } from './constant'
 /**
  * 创建元素。运行的时候，内部会自动调用这个方法，不用我们手动调用
  * @param {*} type 类型
@@ -26,7 +25,7 @@ function createElement(type, config, children) {
     props.children = Array.prototype.slice.call(arguments, 2).map(wrapToVdom);
   } else {
     // children：字符串、数字、数组
-    if(typeof children !== 'undefined') props.children = wrapToVdom(children);
+    props.children = wrapToVdom(children);
   }
   return {
     type,
@@ -96,38 +95,12 @@ function createContext(){
   return context;
 }
 
-/** memo方法 */
-function memo(FunctionComponent, compare) {
-  return {
-    $$typeof: REACT_MEMO,
-    type: FunctionComponent,
-    compare: compare || shallowEqual
-  }
-}
-
-/**
- * useContext方法
- * @param {*} context React.createContext()返回的对象
- * @returns 返回值就是Provider组件的value属性
- */
-function useContext(context){
-  return context._currentValue;
-}
-
 const React = {
   createElement,
   Component,
-  PureComponent,
   createRef,
   forwardRef,
   createContext,
-  cloneElement,
-  memo,
-  useState,
-  useMemo,
-  useCallback,
-  useReducer,
-  useContext
+  cloneElement
 }
 export default React;
-
