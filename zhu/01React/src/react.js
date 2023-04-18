@@ -1,7 +1,7 @@
 import { shallowEqual, wrapToVdom } from './utils.js'
 import { Component,PureComponent } from './Component';
 import { REACT_FOREARD_REF_TYPE, REACT_PROVIDER, REACT_CONTEXT, REACT_MEMO } from './constant'
-import {useState, useMemo, useCallback, useReducer} from './react-dom.js'
+import {useState, useMemo, useCallback, useReducer,useEffect,useLayoutEffect,useRef} from './react-dom.js'
 /**
  * 创建元素。运行的时候，内部会自动调用这个方法，不用我们手动调用
  * @param {*} type 类型
@@ -114,6 +114,10 @@ function useContext(context){
   return context._currentValue;
 }
 
+function useImperativeHandle(ref, factory){
+  ref.current = factory(); 
+}
+
 const React = {
   createElement,
   Component,
@@ -127,7 +131,11 @@ const React = {
   useMemo,
   useCallback,
   useReducer,
-  useContext
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useImperativeHandle
 }
 export default React;
 

@@ -76,7 +76,6 @@ export function useCallback(callback, deps){
   }
 }
 
-
 export function useReducer(reducer,initialState){
   hookStates[hookIndex] = hookStates[hookIndex] || initialState; // 如果没有值，就用初始值
   let currentIndex = hookIndex; // 保存当前的索引
@@ -85,6 +84,73 @@ export function useReducer(reducer,initialState){
     scheduleUpdate(); // 调度更新
   }
   return [hookStates[hookIndex++],dispatch]; // 返回状态和更新状态的方法
+}
+
+/**
+ * 
+ * @param {*} callback 当前渲染完成之后下一个宏任务的回调
+ * @param {*} deps 依赖数组
+ */
+export function useEffect(callback, deps){
+  if(hookStates[hookIndex]){
+    let [destroy, lastDeps] = hookStates[hookIndex];
+    let everySame = deps.every((item,index)=>item === lastDeps[index]); // 判断依赖是否相同
+    if(everySame){ // 如果依赖相同，就不执行callback
+      hookIndex++;
+    }else{ // 如果依赖不相同，就执行callback
+      destroy && destroy(); // 销毁上一次的副作用
+      setTimeout(()=>{ // 开启一个宏任务
+        let desstroy = callback(); // 执行callback，返回一个销毁函数
+        hookStates[hookIndex++] = [desstroy,deps]; // 保存销毁函数和依赖
+      })
+    }
+  }else{
+    // 初次渲染的时候，开启一个宏任务，在宏任务中执行callback，保存销毁函数和依赖数组
+    setTimeout(()=>{ // 开启一个宏任务
+      let desstroy = callback(); // 执行callback，返回一个销毁函数
+      hookStates[hookIndex++] = [desstroy,deps]; // 保存销毁函数和依赖
+    })
+  }
+}
+
+/**
+ * 
+ * @param {*} callback 当前渲染完成之后下一个微任务的回调
+ * @param {*} deps 依赖数组
+ */
+export function useLayoutEffect(callback, deps){
+  if(hookStates[hookIndex]){
+    let [destroy, lastDeps] = hookStates[hookIndex];
+    let everySame = deps.every((item,index)=>item === lastDeps[index]); // 判断依赖是否相同
+    if(everySame){ // 如果依赖相同，就不执行callback
+      hookIndex++;
+    }else{ // 如果依赖不相同，就执行callback
+      destroy && destroy(); // 销毁上一次的副作用
+      queueMicrotask(()=>{ // 开启一个微任务
+        let desstroy = callback(); // 执行callback，返回一个销毁函数
+        hookStates[hookIndex++] = [desstroy,deps]; // 保存销毁函数和依赖
+      })
+    }
+  }else{
+    queueMicrotask(()=>{ // 开启一个宏任务
+      let desstroy = callback(); // 执行callback，返回一个销毁函数
+      hookStates[hookIndex++] = [desstroy,deps]; // 保存销毁函数和依赖
+    })
+  }
+}
+
+/**
+ * useRef的实现
+ * @returns {current: null}
+ */
+export function useRef(){
+  if(hookStates[hookIndex]){
+    return hookStates[hookIndex++];
+  }else{
+    hookStates[hookIndex] = {current: null};
+    return hookStates[hookIndex++];
+  }
+
 }
 
 /**

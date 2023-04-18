@@ -1,24 +1,41 @@
 
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React from './react';
+import ReactDOM from './react-dom';
 
-function Counter(){
-  const [number, setNumber] = React.useState(0);
-  // React.useEffect接收一个函数，这个函数会在组件挂载或者更新后执行
-  React.useEffect(()=>{
-    console.log('开启一个新的定时器');
-    const timer = setInterval(()=>{
-      console.log('执行定时器');
-      setNumber(number=>number+1);
-      }, 1000)
-    return()=>{
-      console.log('清空定时器', number);
-      clearInterval(timer);
-    }
-  },[number])
+function useCounter(initialState){
+  const [number, setNumber] = React.useState(initialState);
+  const handleClick = ()=>{
+    setNumber(number + 1);
+  }
+  return [number, handleClick];
+}
+
+function Counter2(){
+  const [number, handleClick] = useCounter(10);
   return (
-    <p>{number}</p>
+    <div>
+      <p>{number}</p>
+      <button onClick={handleClick}>+</button>
+    </div>
   )
 }
 
-ReactDOM.render(<Counter />, document.getElementById('root'));
+function Counter1(){
+  const [number, handleClick] = useCounter(20);
+  return (
+    <div>
+      <p>{number}</p>
+      <button onClick={handleClick}>+</button>
+    </div>
+  )
+}
+
+function App(){
+  return (
+    <div>
+      <Counter1/>
+      <Counter2/>
+    </div>
+  )
+}
+ReactDOM.render(<App />, document.getElementById('root'));
