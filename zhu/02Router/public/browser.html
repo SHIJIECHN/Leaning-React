@@ -10,6 +10,20 @@
     <div id="root"></div>
 
     <script>
+        (function(history){
+            let oldPushState = history.pushState;// 获取老的pushState方法，并保存到oldPushState中
+            history.pushState = function(pathname, state){ // 重写pushState方法
+                let result = oldPushState.apply(history, arguments); // 执行老的pushState方法
+                if(typeof window.onpushState === 'function'){ // 如果有监听pushState事件的函数，就执行
+                    // 构建一个自定义事件，事件名为pushState，事件的detail属性为{pathname,state}
+                    window.onpushState(new CustomEvent('pushState', {detial: {pathname,state}}));
+                }
+                return result;
+            }
+        })(globalHistory);
+        window.onpushstate = (event)=>{
+            document.getElementById('root').innerHTML = event.type;
+        }
         // 这个history是一个全局管理对象，可以通过它来操作浏览器的历史记录
         let globalhistory = window.history;
         let oldgHistoryLength = globalhistory.length;// 历史条目的长度
